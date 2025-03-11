@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "Chat",
+    "version": "1.0",
+
+    "description": "Adds a chat to each page, with the click of a button!",
+
+    "icons": {
+        "48": "icon.png",
+        "96": "icon-big.png"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["*"],
+            "js": ["chat.js"]
+        }
+    ]
+}
