@@ -10,7 +10,7 @@ var addr = flag.String("addr", ":8080", "http service address")
 
 func serveTestPage(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL)
-	if r.URL.Path != "/test" {
+	if r.URL.Path != "/" {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}
@@ -25,7 +25,7 @@ func main() {
 	flag.Parse()
 	hub := newHub()
 	go hub.run()
-	http.HandleFunc("/test", serveTestPage)
+	http.HandleFunc("/", serveTestPage)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})

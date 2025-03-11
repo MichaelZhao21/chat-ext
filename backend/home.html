@@ -1,100 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<title>Chat Example</title>
-<script type="text/javascript">
-window.onload = function () {
-    var conn;
-    var msg = document.getElementById("msg");
-    var log = document.getElementById("log");
-
-    function appendLog(item) {
-        var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-        log.appendChild(item);
-        if (doScroll) {
-            log.scrollTop = log.scrollHeight - log.clientHeight;
-        }
-    }
-
-    document.getElementById("form").onsubmit = function () {
-        if (!conn) {
-            return false;
-        }
-        if (!msg.value) {
-            return false;
-        }
-        conn.send(msg.value);
-        msg.value = "";
-        return false;
-    };
-
-    if (window["WebSocket"]) {
-        // name is random number from 1 to 1000
-        const name = Math.floor(Math.random() * 1000) + 1;
-        conn = new WebSocket("ws://" + document.location.host + "/ws?name=" + name);
-        conn.onclose = function (evt) {
-            var item = document.createElement("div");
-            item.innerHTML = "<b>Connection closed.</b>";
-            appendLog(item);
-        };
-        conn.onmessage = function (evt) {
-            var messages = evt.data.split('\n');
-            for (var i = 0; i < messages.length; i++) {
-                var item = document.createElement("div");
-                item.innerText = messages[i];
-                appendLog(item);
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test Chat!</title>
+        <style>
+            @font-face {
+                font-family: "Century Schoolbook";
+                src: url("font.ttf") format("truetype");
             }
-        };
-    } else {
-        var item = document.createElement("div");
-        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-        appendLog(item);
-    }
-};
-</script>
-<style type="text/css">
-html {
-    overflow: hidden;
-}
 
-body {
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: gray;
-}
+            html {
+                width: 100%;
+                height: 100%;
+                overflow-x: hidden;
+                margin: 0;
+                padding: 0;
+            }
 
-#log {
-    background: white;
-    margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
-    position: absolute;
-    top: 0.5em;
-    left: 0.5em;
-    right: 0.5em;
-    bottom: 3em;
-    overflow: auto;
-}
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
 
-#form {
-    padding: 0 0.5em 0 0.5em;
-    margin: 0;
-    position: absolute;
-    bottom: 1em;
-    left: 0px;
-    width: 100%;
-    overflow: hidden;
-}
+                display: flex;
+                flex-direction: column;
 
-</style>
-</head>
-<body>
-<div id="log"></div>
-<form id="form">
-    <input type="submit" value="Send" />
-    <input type="text" id="msg" size="64" autofocus />
-</form>
-</body>
+                background-color: white;
+                font-family: "Century Schoolbook", serif;
+                font-size: 12px;
+                color: black;
+                overflow-x: none;
+            }
+
+            #chat-ext-display {
+                overflow-y: auto;
+                flex-grow: 1;
+            }
+
+            #chat-ext-input-area {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 5px;
+            }
+
+            #chat-ext-input {
+                height: 12px;
+
+                font-family: "Century Schoolbook", serif;
+                font-size: 12px;
+                background-color: white;
+                color: black;
+                border: none;
+                flex-grow: 1;
+                outline: none;
+            }
+
+            ::-webkit-scrollbar {
+                width: 1px;
+            }
+
+            #chat-ext-close {
+                position: absolute;
+                top: 0;
+                right: 0;
+                font-size: 20px;
+                color: #aaaaaa;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="chat-ext-display"></div>
+        <div id="chat-ext-input-area">
+            <div id="chat-ext-prompt">></div>
+            <input id="chat-ext-input" type="text" />
+        </div>
+        <div id="chat-ext-close">x</div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document
+                    .getElementById("chat-ext-input")
+                    .addEventListener("keydown", sendMessage);
+
+                const animals = [
+                    "albatross",
+                    "alligator",
+                    "alpaca",
+                    "anteater",
+                    "antelope",
+                    "armadillo",
+                    "baboon",
+                    "badger",
+                    "bald eagle",
+                    "bat",
+                    "bear",
+                    "beaver",
+                    "bird",
+                    "bison",
+                    "black bear",
+                    "boa",
+                    "boa constrictor",
+                    "boar",
+                    "buffalo",
+                    "butterfly",
+                    "camel",
+                    "capybara",
+                    "cat",
+                    "cheetah",
+                    "chimpanzee",
+                    "chipmunk",
+                    "cobra",
+                    "cow",
+                    "coyote",
+                    "crab",
+                    "crane",
+                    "crocodile",
+                    "crow",
+                    "deer",
+                    "dog",
+                    "dolphin",
+                    "dove",
+                    "dragonfly",
+                    "duck",
+                    "eagle",
+                    "echidna",
+                    "elephant",
+                    "elk",
+                    "emu",
+                    "falcon",
+                    "ferret",
+                    "fish",
+                    "flamingo",
+                    "flicker",
+                    "fox",
+                    "gazelle",
+                    "gecko",
+                    "giraffe",
+                    "gnu",
+                    "goat",
+                    "goose",
+                    "gorilla",
+                    "grizzly bear",
+                    "groundhog",
+                    "gull",
+                    "harbor seal",
+                    "hawk",
+                    "hedgehog",
+                    "hen",
+                    "hippopotamus",
+                    "honey badger",
+                    "hyena",
+                    "iguana",
+                    "insect",
+                    "jackal",
+                    "jaguar",
+                    "kangaroo",
+                    "killer whale",
+                    "koala",
+                    "komodo dragon",
+                    "lemming",
+                    "lemur",
+                    "leopard",
+                    "lion",
+                    "lizard",
+                    "llama",
+                    "lynx",
+                    "magpie",
+                    "manatee",
+                    "mockingbird",
+                    "mongoose",
+                    "monkey",
+                    "moose",
+                    "mouse",
+                    "opossum",
+                    "orca",
+                    "ostrich",
+                    "otter",
+                    "owl",
+                    "ox",
+                    "peacock",
+                    "pelican",
+                    "penguin",
+                    "pigeon",
+                    "platypus",
+                    "porcupine",
+                    "possum",
+                    "puma",
+                    "python",
+                    "rabbit",
+                    "raccoon",
+                    "rat",
+                    "rattlesnake",
+                    "rhinoceros",
+                    "salmon",
+                    "seal",
+                    "sea lion",
+                    "shark",
+                    "sheep",
+                    "skunk",
+                    "sloth",
+                    "snake",
+                    "sparrow",
+                    "spider",
+                    "squirrel",
+                    "starfish",
+                    "swan",
+                    "tapir",
+                    "tarantula",
+                    "tiger",
+                    "tortoise",
+                    "turkey",
+                    "turtle",
+                    "viper",
+                    "vulture",
+                    "wagtail",
+                    "wallaby",
+                    "whale",
+                    "wolf",
+                    "wombat",
+                    "woodpecker",
+                    "yak",
+                    "zebra",
+                ];
+                window.chatUsername =
+                    animals[Math.floor(Math.random() * animals.length)];
+
+                // Create websocket connection
+                // CHANGE THIS TO LOCALHOST:8080 FOR LOCAL TESTING
+                window.chatSocket = new WebSocket(
+                    `wss://chat.mikz.dev/ws?name=${window.chatUsername}`
+                );
+
+                chatSocket.onmessage = function (event) {
+                    const log = document.getElementById("chat-ext-display");
+                    const message = document.createElement("div");
+                    message.innerText = event.data;
+
+                    var doScroll =
+                        log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+                    log.appendChild(message);
+                    if (doScroll) {
+                        log.scrollTop = log.scrollHeight - log.clientHeight;
+                    }
+                };
+
+                chatSocket.onclose = function (event) {
+                    console.log("Chat socket closed");
+                };
+
+                chatSocket.onerror = function (event) {
+                    console.error("Chat socket error");
+                };
+
+                document
+                    .getElementById("chat-ext-close")
+                    .addEventListener("click", function () {
+                        if (
+                            document.getElementById("chat-ext-display").style
+                                .display === "none"
+                        ) {
+                            document.getElementById(
+                                "chat-ext-display"
+                            ).style.display = "block";
+                            document.getElementById(
+                                "chat-ext-input-area"
+                            ).style.display = "flex";
+                            document.getElementById(
+                                "chat-ext-close"
+                            ).innerText = "x";
+                        } else {
+                            document.getElementById(
+                                "chat-ext-display"
+                            ).style.display = "none";
+                            document.getElementById(
+                                "chat-ext-input-area"
+                            ).style.display = "none";
+                            document.getElementById(
+                                "chat-ext-close"
+                            ).innerText = "+";
+                        }
+                    });
+            });
+
+            async function sendMessage(e) {
+                if (e.key !== "Enter") {
+                    return;
+                }
+
+                const message = document.getElementById("chat-ext-input").value;
+                document.getElementById("chat-ext-input").value = "";
+
+                // Send message to server
+                chatSocket.send(message);
+            }
+        </script>
+    </body>
 </html>

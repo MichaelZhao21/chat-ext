@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     window.chatUsername = animals[Math.floor(Math.random() * animals.length)];
 
     // Create websocket connection
-    window.chatSocket = new WebSocket(`ws://localhost:8080/ws?name=${window.chatUsername}`);
+    // CHANGE THIS TO LOCALHOST:8080 FOR LOCAL TESTING
+    window.chatSocket = new WebSocket(`wss://chat.mikz.dev/ws?name=${window.chatUsername}`);
 
     chatSocket.onmessage = function (event) {
         const log = document.getElementById("chat-ext-display");
