@@ -10,6 +10,9 @@ The current backend is hosted on `chat.mikz.dev`, which is the websocket url in 
 
 ## Extension
 
-Because of inconsistencies between Firefox and Chrome (due to Manifest v3), the extension only works on chrome :(. To install it, the `extension` directory has everything you need to run it. For testing purposes, go to [chrome://extensions/](chrome://extensions/) and click "Load Unpacked" at the top left. Navigate to the `extension` directory and select it. Now it's loaded into Chrome!
+The `extension` directory has everything you need to run it. For testing purposes, go to [chrome://extensions/](chrome://extensions/) and click "Load Unpacked" at the top left. Navigate to the `extension` directory and select it. Now it's loaded into Chrome! (For Firefox, go to [about://debugging](about://debugging) and click "The Firefox" at the top left. Then hit "Load Temporary Add-on..." and select the `manifest.json` file in the `extension` directory.)
 
 To use the extension, simply click on the icon in the extensions menu. A white box will appear in the bottom middle of the page. Click on the text input (at the bottom denoted by a tiny `>` sign). Press enter to send a message and you should see it appear in the chat!
+
+> NOTE: Because of incompatibilities with FF and Chrome, both browsers will throw a warning/error. This is NOT a bug and can just be ignored. The reason for this is because Chrome has `service_worker` while Firefox has `scripts` in the `background` section of the manifest. Until Firefox adds service worker support, it will be like this...
+
