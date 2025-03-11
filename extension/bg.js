@@ -14,10 +14,13 @@ function injectOverlay() {
     iframe.style.cssText = `
         position: fixed;
         bottom: 5vh;
-        left: 5vw;
-        width: 90vw;
+        left: 25vw;
+        width: 50vw;
         height: 100px;
         z-index: 1000;
+        border: none;
+        padding: 0;
+        overflow: hidden;
     `;
 
     document.body.appendChild(iframe);
