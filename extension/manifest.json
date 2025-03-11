@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Chat",
     "version": "1.0",
 
@@ -10,10 +10,28 @@
         "96": "icon-big.png"
     },
 
-    "content_scripts": [
+    "permissions": ["scripting", "tabs", "activeTab"],
+    "host_permissions": ["*://*/*.pdf"],
+    "background": {
+        "service_worker": "bg.js"
+    },
+
+    "action": {
+        "default_icon": "icon.png"
+    },
+
+    "web_accessible_resources": [
         {
-            "matches": ["*"],
-            "js": ["chat.js"]
+            "resources": ["font.ttf"],
+            "matches": ["http://*/*", "https://*/*"]
+        },
+        {
+            "resources": ["chat.html"],
+            "matches": ["http://*/*", "https://*/*"]
+        },
+        {
+            "resources": ["chat.js"],
+            "matches": ["http://*/*", "https://*/*"]
         }
     ]
 }
