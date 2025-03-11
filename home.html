@@ -29,7 +29,9 @@ window.onload = function () {
     };
 
     if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + "/ws");
+        // name is random number from 1 to 1000
+        const name = Math.floor(Math.random() * 1000) + 1;
+        conn = new WebSocket("ws://" + document.location.host + "/ws?name=" + name);
         conn.onclose = function (evt) {
             var item = document.createElement("div");
             item.innerHTML = "<b>Connection closed.</b>";

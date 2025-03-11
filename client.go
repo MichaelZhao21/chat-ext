@@ -46,6 +46,9 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	// Name to append to messages
+	name string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -70,6 +73,7 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		message = append([]byte(c.name+": "), message...)
 		c.hub.broadcast <- message
 	}
 }
@@ -127,7 +131,9 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	name := r.URL.Query().Get("name")
+	log.Printf("Client %s connected", name)
+	client := &Client{hub: hub, conn: conn, name: name, send: make(chan []byte, 256)}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
